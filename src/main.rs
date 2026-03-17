@@ -27,7 +27,6 @@ fn cantidad_de_digitos(&self) -> u32{
     self.valor.to_string().len() as u32
 }
 fn invertido(&self) -> u64 {
-    //self.valor.to_string().chars().rev().collect::<String>().parse().unwrap_or(0)
     let mut invertido = 0;
     let mut numero = self.valor;
     while numero > 0 {
