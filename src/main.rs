@@ -1,3 +1,4 @@
+//use core::num;
 use std::io::{self, Write};  // Para leer entrada y mostrar el menú sin salto de línea
 struct Numero {
     valor: u64
@@ -39,8 +40,8 @@ impl Numero {
         true
     }
 
-    fn cantidad_digitos(&self) -> u32 {
-        let mut count: u32 = 0;
+    fn cantidad_digitos(&self) -> u64 {
+        let mut count: u64 = 0;
         let mut num: u64 = self.valor;
 
         while num > 0 {
@@ -117,9 +118,43 @@ impl Numero {
         }
         return n;
     }
-//1.- Collatz: Si el número es par, se divide entre 2; si es impar, se multiplica por 3 y se suma 1.
-//    Repetir hasta llegar a 1. 
-//    Mostrar los pasos necesarios y otro que encuentre el valor maximo alcanzado.
+    //1.- Collatz: Si el número es par, se divide entre 2; si es impar, se multiplica por 3 y se suma 1.
+    //    Repetir hasta llegar a 1. 
+    //    Mostrar los pasos necesarios y otro que encuentre el valor maximo alcanzado.
+
+    fn conjetura_collats(&self) -> u32 {
+        let mut cont: u32 = 0;
+        let mut num : u64 = self.valor;
+
+        while num != 1 {
+            if num % 2 == 0 {
+                num /= 2;
+            }
+            else {
+                num = num * 3 + 1;
+            }
+            cont += 1;
+            }
+            cont
+        }
+    fn valor_max_collatz(&self) -> u64 {
+        let mut num : u64 = self.valor;
+        let mut max: u64 = num;
+
+        while num != 1 {
+            if num % 2 == 0 {
+                num /= 2;
+            }
+            else {
+                num = num * 3 + 1;
+            }
+            if num > max {
+                max = num;
+            }
+        }
+        max
+    }
+        
 //      13 es impar → 13*3+1=40
 //      40 es par → 40/2=20
 //      20 es par → 20/2=10
@@ -129,7 +164,35 @@ impl Numero {
 //      8 es par → 8/2=4
 //      4 es par → 4/2=2
 //      2 es par → 2/2=1
-//      Pasos: 9, Valor máximo: 40
+//      Pasos: 9, Valor máximo: 40'
+    fn leer_linea(&self) -> String {
+    let mut entrada = String::new();
+    io::stdin().read_line(&mut entrada).expect("Error al leer");
+    entrada.trim().to_string()
+}
+    fn insertar_digito(&self) {
+        let mut num: u64 = self.valor;
+        let cant_dig: u64 = self.cantidad_digitos();
+        println!("  Ingresa el dígito a insertar:");
+        let digito = self.leer_linea().parse::<u64>().expect("Error al leer el digito");
+        println!("  Ingresa la posición (0 para el final):");
+        let pos : u64 = self.leer_linea().parse::<u64>().expect("Error al leer la posicion");
+        let mut cont: u64 = 0;
+        while pos > cont {
+            num /= 10;
+            cont += 1;
+        }
+        if cant_dig < pos {
+            println!("  Posición inválida. El número tiene solo {} dígitos.", cant_dig);
+            return;
+        }
+        else{
+        let parte1 = num * 10 + digito;
+        let parte2 = self.valor % self.elevado(10, pos);
+        let resultado = parte1 * self.elevado(10, pos) + parte2;
+        println!("  Resultado: {}", resultado);
+        }
+    }
 //2.- Insertar un digito en una pos,ej:
 //    361, quiero insertar el digito 2 en la 2da posicion
 //    3261     
@@ -175,6 +238,9 @@ fn mostrar_menu(n: &Numero) {
     println!("║  6. ¿Es Armstrong?               ║");
     println!("║  7. Cantidad dígitos pares       ║");
     println!("║  8. Raíz digital                 ║");
+    println!("║  9. Pasos Collatz                ║");
+    println!("║ 10. Valor máximo Collatz         ║");
+    println!("║ 11. Insertar dígito              ║");
     println!("╠══════════════════════════════════╣");
     println!("║  0. Ingresar nuevo número        ║");
     println!("║  Q. Salir                        ║");
@@ -213,6 +279,9 @@ fn main() {
             "6" => println!("  ¿Es Armstrong?    → {}", n.es_armstrong()),
             "7" => println!("  Cant. Digitos Par → {}", n.cant_dig_par()),
             "8" => println!("  Raíz Digital:     → {}", n.raiz_digital()),
+            "9" => println!("  Pasos Collatz:    → {}", n.conjetura_collats()),
+            "10" => println!("  Valor Máx Collatz → {}", n.valor_max_collatz()),
+            "11" => n.insertar_digito(),
             "0" => {
                 println!("  Ingresa el nuevo número:");
                 match leer_numero() {
