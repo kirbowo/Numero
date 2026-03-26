@@ -1,68 +1,227 @@
-use std::io::stdin;
-
+use std::io::{self, Write};  // Para leer entrada y mostrar el menú sin salto de línea
 struct Numero {
     valor: u64
 }
+
 impl Numero {
     fn new(valor: u64) -> Self {
-        Self { valor }
+        Numero { valor }
     }
 
-fn es_par(&self) -> bool {
-    self.valor % 2 == 0
-}
-fn es_primo(&self) -> bool {
-    if self.valor < 2 {
-        return false;
+    fn es_par(&self) -> bool {
+        self.valor % 2 == 0
     }
-    for i in 2..=((self.valor as f64).sqrt() as u64) {
-        if self.valor % i == 0 {
+
+    fn es_primo(&self) -> bool {
+        let num: u64 = self.valor;
+
+        if num < 2 {
             return false;
         }
+        if num == 2 {
+           return true;
+        }
+
+        if num % 2 == 0 {
+            return false;
+        }
+
+        let t: u64 = (num as f64).sqrt() as u64 + 1;
+        let mut d: u64 = 3;
+
+        while d <= t {
+            if num % d == 0 {
+                return false;
+            }
+            d += 2;
+        };
+
+        true
     }
-    true
+
+    fn cantidad_digitos(&self) -> u32 {
+        let mut count: u32 = 0;
+        let mut num: u64 = self.valor;
+
+        while num > 0 {
+            num /= 10;
+            count += 1;
+        }
+
+        count
+    }
+
+    fn invertir(&self) -> u64 {
+        let mut num: u64 = self.valor;
+        let mut invertido: u64 = 0;
+
+        while num > 0 {
+            let digito: u64 = num % 10;
+            invertido = invertido * 10 + digito;
+            num /= 10;
+        }
+
+        invertido
+    }
+
+    fn es_capicua(&self) -> bool {
+        self.valor == self.invertir()
+    }
+
+    fn elevado(&self, base: u64, exp: u64) -> u64 {
+        let mut conta = 1;
+        for _ in 0..exp {
+            conta *= base;
+        }
+        conta
+    }
+
+    fn es_armstrong(&self) -> bool {
+        let mut num = self.valor;
+        let digitos = self.cantidad_digitos();
+        let mut suma = 0;
+
+        while num > 0 {
+            let digito = num % 10;
+            suma += self.elevado(digito, digitos as u64);
+            num /= 10;
+        }
+        suma  == self.valor
+    }
+    fn cant_dig_par(&self) -> u32 {
+        let mut count = 0;
+        let mut num = self.valor;
+
+        while num > 0 {
+            let digito = num % 10;
+            if digito % 2 == 0 {
+                count += 1;
+            }
+            num /= 10;
+        }
+
+        count
+    }
+    fn raiz_digital(&self) -> u64 {
+        //La raiz digital, es aquel que sumando sus digitos, se obtiene un nuevo valor.
+        //este valor tambien se debe sumar sus digitos, hasta que el valor sea de 1 cifra.
+        let mut n = self.valor;
+        while n >= 10 {
+            let mut suma = 0;
+            let mut temp = n;
+            while temp > 0 {
+                suma = suma + (temp % 10);
+                temp = temp / 10;
+            }
+            n = suma;
+        }
+        return n;
+    }
+//1.- Collatz: Si el número es par, se divide entre 2; si es impar, se multiplica por 3 y se suma 1.
+//    Repetir hasta llegar a 1. 
+//    Mostrar los pasos necesarios y otro que encuentre el valor maximo alcanzado.
+//      13 es impar → 13*3+1=40
+//      40 es par → 40/2=20
+//      20 es par → 20/2=10
+//      10 es par → 10/2=5
+//      5 es impar → 5*3+1=16
+//      16 es par → 16/2=8
+//      8 es par → 8/2=4
+//      4 es par → 4/2=2
+//      2 es par → 2/2=1
+//      Pasos: 9, Valor máximo: 40
+//2.- Insertar un digito en una pos,ej:
+//    361, quiero insertar el digito 2 en la 2da posicion
+//    3261     
+
+/*     fn fibonacci(&self) -> u64 {
+        let mut a: u64 = 0;
+        let mut b: u64 = 1;
+
+        for _ in 0..self.valor {
+            let temp: u64 = a;
+            a = b;
+            b = temp + b;
+        }
+
+        a
+    }*/
+
+    fn resetear(&mut self, nuevo: u64) {
+        self.valor = nuevo;
+    }
+}
+// Función para leer una línea de entrada del usuario
+fn leer_linea() -> String {
+    let mut entrada = String::new();
+    io::stdin().read_line(&mut entrada).expect("Error al leer");
+    entrada.trim().to_string()
+}
+// Función para leer un número u64 del usuario, devuelve None si no es válido
+fn leer_numero() -> Option<u64> {
+    leer_linea().parse::<u64>().ok()
 }
 
-fn cantidad_de_digitos(&self) -> u32{
-    self.valor.to_string().len() as u32
-}
-fn invertido(&self) -> u64 {
-    let mut invertido = 0;
-    let mut numero = self.valor;
-    while numero > 0 {
-        invertido = invertido * 10 + numero % 10;
-        numero /= 10;
-    }
-    invertido
-}
-fn es_par_invertido(&self) -> bool {
-    self.invertido() % 2 == 0
-}
-fn es_primo_invertido(&self) -> bool {
-    let invertido = self.invertido();
-    if invertido < 2 {
-        return false;
-    }
-    for i in 2..=((invertido as f64).sqrt() as u64) {
-        if invertido % i == 0 {
-            return false;
-        }
-    }
-    true
-}
- 
+fn mostrar_menu(n: &Numero) {
+    println!("\n╔══════════════════════════════════╗");
+    println!("║   NÚMERO ACTUAL: {:>14}  ║", n.valor);
+    println!("╠══════════════════════════════════╣");
+    println!("║  Consulta                        ║");
+    println!("║  1. ¿Es par?                     ║");
+    println!("║  2. ¿Es primo?                   ║");
+    println!("║  3. Cantidad de dígitos          ║");
+    println!("║  4. Invertir                     ║");    
+    println!("║  5. ¿Es capicúa?                 ║");
+    println!("║  6. ¿Es Armstrong?               ║");
+    println!("║  7. Cantidad dígitos pares       ║");
+    println!("║  8. Raíz digital                 ║");
+    println!("╠══════════════════════════════════╣");
+    println!("║  0. Ingresar nuevo número        ║");
+    println!("║  Q. Salir                        ║");
+    println!("╚══════════════════════════════════╝");
+    print!("   Opción: ");
+    io::stdout().flush().expect("Error al mostrar menú");
 }
 
 fn main() {
-    let mut input = String::new();
-    stdin().read_line(&mut input).unwrap();
-    let num: Numero = Numero::new(input.trim().parse().unwrap_or(0));
-    println!("Número ingresado: {}", num.valor);
-    println!("Cantidad de dígitos: {}", num.cantidad_de_digitos());
-    println!("¿Es par? {}", num.es_par());
-    println!("¿Es primo? {}", num.es_primo());
-    println!("Número invertido: {}", num.invertido());
-    println!("¿Es par el número invertido? {}", num.es_par_invertido());
-    println!("¿Es primo el número invertido? {}", num.es_primo_invertido());
+    println!("════════════════════════════════════");
+    println!("  Números - POO — Programación I");
+    println!("════════════════════════════════════");
+    println!("Ingresa un número para comenzar:");
+    // Validar que el usuario ingrese un número válido antes de crear la instancia de Numero
+    let valor_inicial: u64 = loop { //loop se repite hasta que encuentre un break
+        match leer_numero() {
+            Some(num) => break num,
+            None    => println!("Número inválido. Intenta de nuevo:"),
+        }
+    };
+    //creando una instancia de Numero con el valor inicial ingresado por el usuario
+    //ESTA ES LA INSTANCIA DEL OBJETO NUMERO, A PARTIR DE AQUÍ SE UTILIZARÁ PARA REALIZAR TODAS LAS CONSULTAS
+    let mut n =  Numero::new(valor_inicial);
 
+    loop { //el menu se mostrará en un bucle infinito hasta que el usuario decida salir usando la opción 'Q' (break)
+        mostrar_menu(&n);
+        let opcion = leer_linea();
+
+        match opcion.as_str() {  //usando match, se puede llamar a la función correspondiente.
+            // Consultas
+            "1" => println!("  ¿Es par?          → {}", n.es_par()),
+            "2" => println!("  ¿Es primo?        → {}", n.es_primo()),
+            "3" => println!("  Cantidad Digitos: → {}", n.cantidad_digitos()),
+            "4" => println!("  Invertir:         → {}", n.invertir()),
+            "5" => println!("  ¿Es capicúa?      → {}", n.es_capicua()),
+            "6" => println!("  ¿Es Armstrong?    → {}", n.es_armstrong()),
+            "7" => println!("  Cant. Digitos Par → {}", n.cant_dig_par()),
+            "8" => println!("  Raíz Digital:     → {}", n.raiz_digital()),
+            "0" => {
+                println!("  Ingresa el nuevo número:");
+                match leer_numero() {
+                    Some(num) => { n.resetear(num); println!("  ✓ Nuevo número: {}", n.valor); }
+                    None    => println!("  Número inválido, se mantiene {}", n.valor),
+                }
+            }
+            "q" | "Q" => { println!("\n  Hasta luego.\n"); break; } //aquí se rompe el ciclo con "q" o "Q"
+            _ => println!("  Opción no válida."),
+        }
+    }
 }
